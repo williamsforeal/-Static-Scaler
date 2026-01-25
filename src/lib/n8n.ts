@@ -65,34 +65,32 @@ export async function triggerGenerateAdCopy(formData: AdGeneratorForm): Promise<
   return response.json();
 }
 
-// Trigger image generation for a record (GET with query param)
-export async function triggerGenerateImages(recordId: string): Promise<any> {
-  const response = await fetch(`${ENDPOINTS.generateImages}?recordId=${recordId}`, {
-    method: 'GET',
+// Trigger image generation for a record
+export async function triggerGenerateImages(recordId: string): Promise<void> {
+  const response = await fetch(ENDPOINTS.generateImages, {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
+    body: JSON.stringify({ recordId }),
   });
 
   if (!response.ok) {
     throw new Error(`Failed to trigger image generation: ${response.statusText}`);
   }
-
-  return response.json();
 }
 
-// Trigger prompt generation for a record (GET with query param)
-export async function triggerGeneratePrompts(recordId: string): Promise<any> {
-  const response = await fetch(`${ENDPOINTS.generatePrompts}?recordId=${recordId}`, {
-    method: 'GET',
+// Trigger prompt generation for a record
+export async function triggerGeneratePrompts(recordId: string): Promise<void> {
+  const response = await fetch(ENDPOINTS.generatePrompts, {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
+    body: JSON.stringify({ recordId }),
   });
 
   if (!response.ok) {
     throw new Error(`Failed to trigger prompt generation: ${response.statusText}`);
   }
-
-  return response.json();
 }

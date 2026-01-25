@@ -120,4 +120,14 @@
   .glow-primary {
     box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
   }
+
+  /* Pulse animation for running status */
+  @keyframes pulse-status {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .animate-pulse-status {
+    animation: pulse-status 2s ease-in-out infinite;
+  }
 }

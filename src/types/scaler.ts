@@ -1,77 +1,81 @@
 // Scaler Types — Airtable Data Models
 
-export type JobStatus = 'DRAFT' | 'COPY_READY' | 'RENDERING' | 'ASSET_READY' | 'FAILED';
+export type AvatarTarget = 
+  | 'Desk Workers' 
+  | 'Women 45+' 
+  | 'Gift Buyers'
+  | 'Hobbyists' 
+  | 'Professionals' 
+  | 'General';
 
-export type Avatar = 'Chronic Pain Sufferer' | 'Weekend Warrior' | 'Active Senior' | 'Desk Worker' | 'New Parent';
+export type Angle = 
+  | 'Curiosity' 
+  | 'Identity' 
+  | 'Pain' 
+  | 'Social Proof'
+  | 'Us vs Them' 
+  | 'Urgency' 
+  | 'Gift' 
+  | 'Cost' 
+  | 'Science'
+  | 'Transformation' 
+  | 'Risk Reversal' 
+  | 'Scarcity' 
+  | 'Direct Offer';
 
-export type AdFormat = 'X-Ray Agitation' | 'Problem-Solution' | 'Testimonial Proof' | 'Before-After' | 'Mechanism Reveal';
+export type AwarenessLevel = 
+  | 'Unaware' 
+  | 'Problem Aware' 
+  | 'Solution Aware' 
+  | 'Product Aware';
 
-export type PsychAngle = 'Fear of Loss' | 'Identity Shift' | 'Social Proof' | 'Authority' | 'Scarcity';
+export type AdFormat = 
+  | 'FMT1 - X-Ray Agitation' 
+  | 'FMT2 - Problem-Solution'
+  | 'FMT3 - Testimonial Proof' 
+  | 'FMT4 - Before-After'
+  | 'FMT5 - Mechanism Reveal';
 
-export type AntiAltAngle = 'Surgery Alternative' | 'Pills Alternative' | 'PT Alternative' | 'Chiro Alternative';
+export type GenerateStatus = 'Ready' | 'Running' | 'Done' | 'Error';
 
-export type BenefitAngle = 'Pain Relief' | 'Mobility' | 'Sleep Quality' | 'Active Lifestyle' | 'Independence';
-
-export type ConditionAngle = 'Back Pain' | 'Knee Pain' | 'Shoulder Pain' | 'Hip Pain' | 'Neck Pain';
-
-export interface Job {
+export interface ImageAttachment {
   id: string;
-  avatar: Avatar;
-  symptom: string;
-  format: AdFormat;
-  storyBrandMode: boolean;
-  psychAngle?: PsychAngle;
-  antiAltAngle?: AntiAltAngle;
-  benefitAngle?: BenefitAngle;
-  conditionAngle?: ConditionAngle;
-  offerGuarantee: string;
-  status: JobStatus;
+  url: string;
+  filename: string;
+}
+
+export interface AdCopyRecord {
+  id: string;
+  fullConcept: string;
+  headline: string;
+  bodyCopy: string;
+  visual: string;
+  angle: Angle | null;
+  avatarTarget: AvatarTarget | null;
+  awarenessLevel: AwarenessLevel | null;
+  format: AdFormat | null;
+  tags: string[];
+  cta: string | null;
+  generateImagePrompts: GenerateStatus | null;
+  prompts: {
+    variantA: string | null;
+    variantB: string | null;
+    storyBrand: string | null;
+  };
+  images: ImageAttachment[];
   createdAt: string;
-  copyOutputId?: string;
 }
 
-export interface CopyOutput {
-  id: string;
-  jobId: string;
-  hooks: Hook[];
-  primaryTextVariants: string[];
-  visualDirection: VisualDirection;
-  beliefs: string[];
-  mechanismPhrase: string;
+export interface AdGeneratorForm {
+  avatarTarget: AvatarTarget | '';
+  angle: Angle | '';
+  awarenessLevel: AwarenessLevel | '';
+  format: AdFormat | '';
+  fullConcept: string;
+  cta: string;
 }
 
-export interface Hook {
-  id: string;
-  text: string;
-  isWinner: boolean;
-}
-
-export interface VisualDirection {
-  style: string;
-  context: string;
-  colorTone: string;
-  cameraFraming: string;
-}
-
-export interface Asset {
-  id: string;
-  jobId: string;
-  imageUrl: string;
-  variantType: 'Direct Response' | 'StoryBrand';
-  format: string;
-  ratio: '1:1' | '4:5' | '9:16' | '16:9';
-  status: 'pending' | 'ready' | 'failed';
-}
-
-// Form types
-export interface NewJobFormData {
-  avatar: Avatar;
-  symptom: string;
-  format: AdFormat;
-  storyBrandMode: boolean;
-  psychAngle?: PsychAngle;
-  antiAltAngle?: AntiAltAngle;
-  benefitAngle?: BenefitAngle;
-  conditionAngle?: ConditionAngle;
-  offerGuarantee: string;
+export interface GenerateAdCopyResponse {
+  recordId: string;
+  status: GenerateStatus;
 }

@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Plus, FolderOpen, Zap } from 'lucide-react';
+import { Sparkles, FolderOpen, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AppLayoutProps {
@@ -8,7 +8,7 @@ interface AppLayoutProps {
 }
 
 const navItems = [
-  { path: '/', label: 'New Job', icon: Plus },
+  { path: '/', label: 'Generator', icon: Sparkles },
   { path: '/library', label: 'Library', icon: FolderOpen },
 ];
 

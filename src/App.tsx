@@ -4,8 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
-import NewJob from "./pages/NewJob";
-import JobResults from "./pages/JobResults";
+import AdGenerator from "./pages/AdGenerator";
 import Library from "./pages/Library";
 import NotFound from "./pages/NotFound";
 
@@ -19,8 +18,7 @@ const App = () => (
       <BrowserRouter>
         <AppLayout>
           <Routes>
-            <Route path="/" element={<NewJob />} />
-            <Route path="/job/:jobId" element={<JobResults />} />
+            <Route path="/" element={<AdGenerator />} />
             <Route path="/library" element={<Library />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

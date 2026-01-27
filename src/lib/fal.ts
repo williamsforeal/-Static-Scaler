@@ -297,6 +297,242 @@ export async function generateAdVariants(
 }
 
 // =============================================================================
+// AD CREATIVE PIPELINE (fal.ai → Bannerbear)
+// =============================================================================
+
+import type { AdOverlayConfig, AdFormat } from '@/types/bannerbear';
+import {
+  generateAndWaitForComposite,
+  isBannerbearConfigured,
+} from '@/lib/bannerbear';
+
+/**
+ * Input for the full ad creative pipeline
+ */
+export interface AdCreativeInput {
+  /** The image generation prompt - will be enhanced with no-text modifiers */
+  prompt: string;
+  /** Negative prompt to avoid unwanted elements */
+  negativePrompt?: string;
+  /** Image dimensions (width) */
+  width?: number;
+  /** Image dimensions (height) */
+  height?: number;
+  /** Seed for reproducibility */
+  seed?: number;
+  /** Text overlay configuration for Bannerbear */
+  overlay: AdOverlayConfig;
+  /** fal.ai model to use */
+  model?: FalModel;
+}
+
+/**
+ * Result from the ad creative pipeline
+ */
+export interface AdCreativeResult {
+  /** The base image from fal.ai (no text) */
+  baseImage: {
+    url: string;
+    width: number;
+    height: number;
+  };
+  /** The final composited image with text overlay (if Bannerbear configured) */
+  finalImage?: {
+    url: string;
+    bannerbearUid: string;
+  };
+  /** Seed used for this generation */
+  seed: number;
+  /** Whether Bannerbear overlay was applied */
+  hasOverlay: boolean;
+  /** Timing information */
+  timing: {
+    falGenerationMs?: number;
+    bannerbearMs?: number;
+    totalMs: number;
+  };
+}
+
+/**
+ * Enhance a prompt for ad image generation
+ * Adds modifiers to prevent text and ensure clean composition
+ */
+export function enhancePromptForAds(prompt: string): string {
+  // Don't add modifiers if they already exist
+  if (prompt.includes('--no text') || prompt.includes('no text')) {
+    return prompt;
+  }
+
+  // Add essential modifiers for ad-friendly images
+  return `${prompt}, clean composition, no text, no watermark, no logo, professional photography`;
+}
+
+/**
+ * Get the default negative prompt for ad images
+ */
+export function getAdNegativePrompt(customNegative?: string): string {
+  const base = 'text, words, letters, watermark, logo, signature, writing, captions, subtitles, blurry, low quality';
+  return customNegative ? `${customNegative}, ${base}` : base;
+}
+
+/**
+ * Generate a complete ad creative: fal.ai base image → Bannerbear text overlay
+ *
+ * This is the main pipeline function that combines:
+ * 1. AI image generation via fal.ai (with no-text prompting)
+ * 2. Text overlay compositing via Bannerbear
+ *
+ * @example
+ * const result = await generateAdCreative({
+ *   prompt: "Professional product photography of a sleek water bottle, studio lighting, negative space on left",
+ *   overlay: {
+ *     headline: "Stay Hydrated",
+ *     cta: "Shop Now",
+ *     format: "square"
+ *   }
+ * });
+ *
+ * // Use result.finalImage.url for the complete ad creative
+ * // Or result.baseImage.url for just the AI-generated image
+ */
+export async function generateAdCreative(
+  input: AdCreativeInput
+): Promise<AdCreativeResult> {
+  const startTime = Date.now();
+  let falEndTime: number | undefined;
+
+  // Step 1: Determine dimensions based on format
+  const formatDimensions: Record<AdFormat, { width: number; height: number }> = {
+    square: { width: 1080, height: 1080 },
+    story: { width: 1080, height: 1920 },
+    landscape: { width: 1200, height: 628 },
+  };
+
+  const dims = formatDimensions[input.overlay.format];
+  const width = input.width || dims.width;
+  const height = input.height || dims.height;
+
+  // Step 2: Generate base image with fal.ai
+  const enhancedPrompt = enhancePromptForAds(input.prompt);
+  const negativePrompt = getAdNegativePrompt(input.negativePrompt);
+
+  const baseResult = await generateImage(
+    {
+      prompt: enhancedPrompt,
+      negativePrompt,
+      width,
+      height,
+      seed: input.seed,
+      numImages: 1,
+    },
+    input.model || 'fal-ai/flux/schnell'
+  );
+
+  falEndTime = Date.now();
+  const baseImage = baseResult.images[0];
+
+  // Step 3: If Bannerbear is configured, apply text overlay
+  let finalImage: AdCreativeResult['finalImage'];
+
+  if (isBannerbearConfigured()) {
+    try {
+      const compositeResult = await generateAndWaitForComposite({
+        baseImageUrl: baseImage.url,
+        overlay: input.overlay,
+      });
+
+      if (compositeResult.status === 'completed' && compositeResult.imageUrl) {
+        finalImage = {
+          url: compositeResult.imageUrl,
+          bannerbearUid: compositeResult.uid,
+        };
+      }
+    } catch (error) {
+      console.warn('Bannerbear overlay failed, returning base image only:', error);
+      // Continue without overlay - base image is still valid
+    }
+  }
+
+  const endTime = Date.now();
+
+  return {
+    baseImage: {
+      url: baseImage.url,
+      width: baseImage.width,
+      height: baseImage.height,
+    },
+    finalImage,
+    seed: baseResult.seed,
+    hasOverlay: !!finalImage,
+    timing: {
+      falGenerationMs: falEndTime ? falEndTime - startTime : undefined,
+      bannerbearMs: falEndTime && finalImage ? endTime - falEndTime : undefined,
+      totalMs: endTime - startTime,
+    },
+  };
+}
+
+/**
+ * Generate multiple ad creatives with different overlay configurations
+ *
+ * @example
+ * const results = await generateAdCreativeBatch({
+ *   prompt: "Product photography of headphones",
+ *   variants: [
+ *     { overlay: { headline: "Premium Sound", cta: "Listen Now", format: "square" }},
+ *     { overlay: { headline: "Music Freedom", cta: "Shop Now", format: "story" }},
+ *   ]
+ * });
+ */
+export async function generateAdCreativeBatch(params: {
+  prompt: string;
+  negativePrompt?: string;
+  variants: Array<{
+    overlay: AdOverlayConfig;
+    width?: number;
+    height?: number;
+    seed?: number;
+  }>;
+  model?: FalModel;
+  onProgress?: (completed: number, total: number) => void;
+}): Promise<AdCreativeResult[]> {
+  const { prompt, negativePrompt, variants, model, onProgress } = params;
+  const results: AdCreativeResult[] = [];
+  let completed = 0;
+
+  // Process variants in parallel with limited concurrency
+  const CONCURRENCY = 3;
+  const chunks: typeof variants[] = [];
+
+  for (let i = 0; i < variants.length; i += CONCURRENCY) {
+    chunks.push(variants.slice(i, i + CONCURRENCY));
+  }
+
+  for (const chunk of chunks) {
+    const chunkResults = await Promise.all(
+      chunk.map(variant =>
+        generateAdCreative({
+          prompt,
+          negativePrompt,
+          overlay: variant.overlay,
+          width: variant.width,
+          height: variant.height,
+          seed: variant.seed,
+          model,
+        }).then(result => {
+          completed++;
+          onProgress?.(completed, variants.length);
+          return result;
+        })
+      )
+    );
+    results.push(...chunkResults);
+  }
+
+  return results;
+}
+
+// =============================================================================
 // UTILITY FUNCTIONS
 // =============================================================================
 

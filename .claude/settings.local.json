@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(node scripts/test-fal.mjs:*)"
+      "Bash(node scripts/test-fal.mjs:*)",
+      "Bash(cd:*)"
     ]
   }
 }

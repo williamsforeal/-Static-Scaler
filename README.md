@@ -1,4 +1,47 @@
-# Welcome to your Lovable project
+# AdScaler Console
+
+A production-ready web application for mass-producing ad creatives using AI image generation (fal.ai) and automated text overlays (Bannerbear), orchestrated via n8n workflows and stored in Airtable.
+
+## Architecture
+
+```
+Frontend (React/Vite) → n8n Cloud Webhooks → Airtable/fal.ai/Bannerbear
+```
+
+**Key Features:**
+- Batch processing of ad creatives from Airtable records
+- AI image generation via fal.ai (Flux model)
+- Automated text overlay compositing via Bannerbear
+- Real-time progress tracking
+- Airtable integration for source data and results storage
+
+## Quick Start
+
+See [Quick Start Guide](./docs/QUICK_START.md) for getting started in 5 steps.
+
+## Documentation
+
+- **[Quick Start](./docs/QUICK_START.md)** - Get running in 30 minutes
+- **[n8n Workflow Guide](./n8n-hosting/WORKFLOW_GUIDE.md)** - Build the orchestration workflows
+- **[Bannerbear Setup](./docs/BANNERBEAR_SETUP.md)** - Create and configure templates
+- **[Airtable Schema](./docs/AIRTABLE_SCHEMA.md)** - Required database structure
+- **[Deployment Guide](./docs/DEPLOYMENT.md)** - Deploy to production
+
+## Project Status
+
+**Current State:**
+- ✅ Frontend UI complete (Batch Processing, Command Center, Library pages)
+- ✅ API client code ready (fal.ai, Bannerbear integrations)
+- ✅ n8n endpoint definitions in place
+- ✅ Airtable schema script ready
+- ⚠️ n8n workflows need to be built (see Workflow Guide)
+- ⚠️ Bannerbear templates need to be created (see Bannerbear Setup)
+
+**Next Steps:**
+1. Build n8n workflows (critical blocker)
+2. Create Bannerbear templates
+3. Deploy frontend
+4. Test end-to-end pipeline
 
 ## Project info
 

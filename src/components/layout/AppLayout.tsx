@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Sparkles, FolderOpen, Zap } from 'lucide-react';
+import { Sparkles, FolderOpen, Zap, Terminal, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AppLayoutProps {
@@ -10,6 +10,8 @@ interface AppLayoutProps {
 const navItems = [
   { path: '/', label: 'Generator', icon: Sparkles },
   { path: '/library', label: 'Library', icon: FolderOpen },
+  { path: '/command-center', label: 'Command Center', icon: Terminal },
+  { path: '/batch', label: 'Batch', icon: Layers },
 ];
 
 export function AppLayout({ children }: AppLayoutProps) {

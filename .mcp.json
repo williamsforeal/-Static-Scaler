@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "n8n-mcp": {
+      "command": "npx",
+      "args": ["n8n-mcp"],
+      "env": {
+        "MCP_MODE": "stdio",
+        "LOG_LEVEL": "error",
+        "DISABLE_CONSOLE_OUTPUT": "true",
+        "N8N_API_URL": "https://williamsforeal.app.n8n.cloud",
+        "N8N_API_KEY": "YOUR_N8N_API_KEY_HERE"
+      }
+    },
+    "github": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "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"
+      }
+    }
+  }
+}

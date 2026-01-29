@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(node scripts/test-fal.mjs:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }

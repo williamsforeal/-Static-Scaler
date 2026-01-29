@@ -1,11 +1,24 @@
 /**
  * IMAGES TABLE SCHEMA UPDATE - FIXED
- * Run: node images_schema_update_FIXED.js
+ * Run: node --env-file=.env scripts/images_schema_update_FIXED.js
+ * Or with dotenv: node scripts/images_schema_update_FIXED.js (after installing dotenv)
  */
 
-const BASE_ID = 'appvPrfjiuXIhdNuW';  // No trailing slash
-const TABLE_ID = 'tblmoUjbAv5NKIyhs'; // Your Images table
-const PAT = 'patRsb9JbV5AE178v.d1ac5ce45c62c8b95e421a44f939a5674a492bb5770c850c161710dd64497c38';
+// Load environment variables
+const BASE_ID = process.env.AIRTABLE_BASE_ID;
+const TABLE_ID = process.env.AIRTABLE_TABLE_ID;
+const PAT = process.env.AIRTABLE_PAT;
+
+// Validate required environment variables
+if (!BASE_ID || !TABLE_ID || !PAT) {
+  console.error('❌ Error: Missing required environment variables.');
+  console.error('Please ensure the following are set in your .env file:');
+  console.error('  - AIRTABLE_BASE_ID');
+  console.error('  - AIRTABLE_TABLE_ID');
+  console.error('  - AIRTABLE_PAT');
+  console.error('\nRun with: node --env-file=.env scripts/images_schema_update_FIXED.js');
+  process.exit(1);
+}
 
 const headers = {
   'Authorization': `Bearer ${PAT}`,
@@ -16,12 +29,12 @@ const fieldsToCreate = [
   {
     name: 'Source Ad Copy',
     type: 'multipleRecordLinks',
-    options: { linkedTableId: 'tblmoUjbAv5NKIyhs' }  // CORRECT ID
+    options: { linkedTableId: TABLE_ID }  // Use environment variable instead of hardcoded value
   },
   {
     name: 'Source Prompt',
     type: 'multipleRecordLinks', 
-    options: { linkedTableId: 'tblmoUjbAv5NKIyhs' }  // CORRECT ID
+    options: { linkedTableId: TABLE_ID }  // Use environment variable instead of hardcoded value
   },
   { name: 'Prompt Index', type: 'number', options: { precision: 0 } },
   { name: 'Prompt Used', type: 'multilineText' },

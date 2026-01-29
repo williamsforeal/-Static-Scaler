@@ -429,6 +429,12 @@ export async function generateAdCreative(
   );
 
   falEndTime = Date.now();
+  
+  // Validate that images array exists and has at least one element
+  if (!baseResult.images || baseResult.images.length === 0) {
+    throw new Error('Image generation failed: No images returned from fal.ai API');
+  }
+  
   const baseImage = baseResult.images[0];
 
   // Step 3: If Bannerbear is configured, apply text overlay

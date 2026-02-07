@@ -10,7 +10,13 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f n8n",
+    "docker:restart": "docker-compose restart n8n",
+    "docker:debug": "docker-compose -f compose.debug.yaml up",
+    "dev:full": "npm run docker:up && npm run dev"
   },
   "dependencies": {
     "@fal-ai/client": "^1.8.4",

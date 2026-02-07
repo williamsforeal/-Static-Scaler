@@ -1,0 +1,100 @@
+# docker-compose.override.example.yml
+#
+# This is an EXAMPLE file showing how to extend the base docker-compose.yaml
+# with additional services. This is useful for:
+# - Adding UI repo services when ready
+# - Running the React app in Docker alongside n8n
+# - Adding database services (PostgreSQL, Redis, etc.)
+#
+# To use this file:
+# 1. Copy this file to docker-compose.override.yml
+# 2. Uncomment the services you want to add
+# 3. Modify as needed for your setup
+# 4. Run `docker-compose up` (Docker Compose automatically reads override files)
+#
+# NOTE: docker-compose.override.yml is gitignored to allow local customization
+
+version: "3.8"
+
+services:
+  # Example: Add React app as a Docker service
+  # Uncomment this section when you want to run the React app in Docker
+  # instead of using npm run dev
+
+  # react-app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.react
+  #   container_name: adscaler-react
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - NODE_ENV=development
+  #   volumes:
+  #     - ./src:/app/src
+  #     - ./public:/app/public
+  #   networks:
+  #     - adscaler-network
+  #   depends_on:
+  #     - n8n
+
+  # Example: Add UI repo service
+  # Uncomment and modify when integrating the UI repo
+
+  # ui-repo:
+  #   build:
+  #     context: ../path-to-ui-repo
+  #     dockerfile: Dockerfile
+  #   container_name: adscaler-ui
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - NODE_ENV=development
+  #     - N8N_URL=http://n8n:5678
+  #   networks:
+  #     - adscaler-network
+  #   depends_on:
+  #     - n8n
+
+  # Example: Add PostgreSQL database
+  # Useful when moving from SQLite to Postgres for better performance
+
+  # postgres:
+  #   image: postgres:16-alpine
+  #   container_name: adscaler-postgres
+  #   restart: unless-stopped
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     - POSTGRES_USER=n8n
+  #     - POSTGRES_PASSWORD=n8n_password
+  #     - POSTGRES_DB=n8n
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - adscaler-network
+
+  # Then update n8n service to use Postgres:
+  # n8n:
+  #   environment:
+  #     - DB_TYPE=postgresdb
+  #     - DB_POSTGRESDB_HOST=postgres
+  #     - DB_POSTGRESDB_PORT=5432
+  #     - DB_POSTGRESDB_DATABASE=n8n
+  #     - DB_POSTGRESDB_USER=n8n
+  #     - DB_POSTGRESDB_PASSWORD=n8n_password
+  #   depends_on:
+  #     - postgres
+
+# volumes:
+#   postgres_data:
+
+# Port Allocation Guide:
+# - 8080: React app (current development server, or Docker container)
+# - 5678: n8n workflow automation
+# - 3000-3010: Reserved for UI repo and additional services
+# - 5432: PostgreSQL database
+# - 6379: Redis (if needed)
+# - 9229: Node.js debug port (used by compose.debug.yaml)

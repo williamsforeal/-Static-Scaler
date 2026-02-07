@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# n8n local data and configuration
+n8n-data/
+.env.docker
+
+# Temp files
+tmpclaude-*
+nul

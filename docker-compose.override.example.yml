@@ -10,13 +10,14 @@
 # 1. Copy this file to docker-compose.override.yml
 # 2. Uncomment the services you want to add
 # 3. Modify as needed for your setup
-# 4. Run `docker-compose up` (Docker Compose automatically reads override files)
+# 4. Run `docker compose up` (Docker Compose automatically reads override files)
 #
 # NOTE: docker-compose.override.yml is gitignored to allow local customization
 
 version: "3.8"
 
-services:
+# Uncomment the services section below when you're ready to add additional services
+# services:
   # Example: Add React app as a Docker service
   # Uncomment this section when you want to run the React app in Docker
   # instead of using npm run dev
